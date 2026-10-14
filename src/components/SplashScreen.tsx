@@ -30,8 +30,8 @@ export function SplashScreen() {
       aria-label="Enter Caption Craze"
     >
       <span className="splash-content">
-        <img src={wordmark.url} alt="Caption Craze" className="splash-wordmark" />
-        <img src={emblem.url} alt="Multicolor KP emblem" className="splash-emblem" />
+        <img src={wordmark} alt="Caption Craze" className="splash-wordmark" />
+        <img src={emblem} alt="Multicolor KP emblem" className="splash-emblem" />
         <span className="splash-credit">Created by Piyush KP</span>
         <span className="splash-subtext">No Login Needed • 100% Free</span>
       </span>

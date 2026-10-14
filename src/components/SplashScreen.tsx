@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import wordmark from "@/assets/caption-craze-wordmark.png.asset.json";
-import emblem from "@/assets/caption-craze-emblem.png.asset.json";
+import wordmark from "@/assets/caption-craze-wordmark.png";
+import emblem from "@/assets/caption-craze-emblem.png";
 import { Button } from "@/components/ui/button";
 import { SPLASH_DURATION_MS, SPLASH_FADE_MS } from "@/lib/splash-settings";
 

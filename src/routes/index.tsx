@@ -3,25 +3,20 @@ import {
   Check,
   ChevronRight,
   Copy,
-  Download,
   Flame,
   Hash,
   Heart,
   Home,
   Instagram,
   Moon,
-  Palette,
-  Plus,
   Search,
   Share2,
   Sparkles,
   Sun,
   Type,
-  WandSparkles,
+  Drama,
   ImagePlus,
-  RotateCcw,
 } from "lucide-react";
-import { downloadCanvas, renderStoryCanvas } from "@/lib/story-canvas";
 import { useEffect, useMemo, useRef, useState } from "react";
 import kpLogo from "@/assets/caption-craze-header.png";
 import { DailyQuote } from "@/components/DailyQuote";
@@ -30,6 +25,7 @@ import { Switch } from "@/components/ui/switch";
 import { quotesByCategory } from "@/lib/quotes-data";
 import { cn } from "@/lib/utils";
 import { StoryMaker } from "@/components/StoryMaker";
+import { MemeKhazana } from "@/components/MemeKhazana";
 import { FontStudio } from "@/components/FontStudio";
 import { PhotoCaption } from "@/components/PhotoCaption";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -87,15 +83,6 @@ const hashtagGroups: HashtagGroup[] = [
   { name: "Reels Hindi", tagline: "Desi Reels aur Shorts ke liye", gradient: "quote-gradient-one", tags: ["#reelsindia", "#desireels", "#hindireels", "#bollywood", "#bollywoodreels", "#trendingsongs", "#reelkaro", "#indianreels", "#hindisong", "#reelsbollywood", "#viralindia", "#instaindia", "#mumbai", "#delhi", "#reelsvideo", "#shortsfeed"] },
 ];
 
-const creatorBackgrounds = [
-  { name: "Aurora", colors: ["#6366f1", "#ec4899"], className: "quote-gradient-one" },
-  { name: "Ocean", colors: ["#0ea5e9", "#4f46e5"], className: "quote-gradient-two" },
-  { name: "Meadow", colors: ["#10b981", "#0ea5e9"], className: "quote-gradient-four" },
-  { name: "Sunset", colors: ["#f43f5e", "#a855f7"], className: "quote-gradient-three" },
-];
-
-const getCreatorBackground = (index: number) => creatorBackgrounds[index] ?? creatorBackgrounds[0];
-
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -117,12 +104,9 @@ function QuotelyApp() {
   const [language, setLanguage] = useState<CaptionLanguage>("शुद्ध हिंदी");
   const [query, setQuery] = useState("");
   const [favorites, setFavorites] = useState<number[]>([]);
-  const [tab, setTab] = useState<"home" | "saved" | "create" | "hashtags" | "fonts" | "ai">("home");
+  const [tab, setTab] = useState<"home" | "saved" | "khazana" | "hashtags" | "fonts" | "ai">("home");
   const [makerQuote, setMakerQuote] = useState<Quote | null>(null);
   const [toast, setToast] = useState("");
-  const [creatorText, setCreatorText] = useState("अपनी कहानी खुद लिखो — दुनिया को बस पढ़ने दो।");
-  const [creatorFont, setCreatorFont] = useState("Fraunces");
-  const [creatorBg, setCreatorBg] = useState(0);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -180,11 +164,6 @@ function QuotelyApp() {
     });
   };
 
-  const downloadStory = (text: string, colors: string[], filename: string, font: string) => {
-    downloadCanvas(renderStoryCanvas(text, colors, font), filename);
-    notify("Story image downloaded");
-  };
-
   const share = async (quote: Quote, channel: "whatsapp" | "instagram") => {
     if (channel === "whatsapp") {
       window.open(`https://wa.me/?text=${encodeURIComponent(quote.text)}`, "_blank", "noopener,noreferrer");
@@ -198,7 +177,7 @@ function QuotelyApp() {
     }
   };
 
-  const setActiveTab = (next: "home" | "saved" | "create" | "hashtags" | "fonts" | "ai") => {
+  const setActiveTab = (next: "home" | "saved" | "khazana" | "hashtags" | "fonts" | "ai") => {
     setTab(next);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -245,8 +224,8 @@ function QuotelyApp() {
           <FontStudio onCopy={async (text, message) => { await navigator.clipboard.writeText(text); notify(message); }} />
         ) : tab === "hashtags" ? (
           <Hashtags groups={visibleHashtagGroups} onCopyAll={copyAllHashtags} />
-        ) : tab === "create" ? (
-          <Creator text={creatorText} setText={setCreatorText} font={creatorFont} setFont={setCreatorFont} background={creatorBg} setBackground={setCreatorBg} onReset={() => { setCreatorText(""); setCreatorFont("Fraunces"); setCreatorBg(0); }} onDownload={() => downloadStory(creatorText, getCreatorBackground(creatorBg)?.colors ?? [], "my-caption-generate-ai.png", creatorFont)} />
+        ) : tab === "khazana" ? (
+          <MemeKhazana />
         ) : (
           <>
 
@@ -271,7 +250,7 @@ function QuotelyApp() {
           <TabButton active={tab === "ai"} label="AI Photo" icon={<ScanSearch />} onClick={() => setActiveTab("ai")} />
           <TabButton active={tab === "fonts"} label="Fonts" icon={<Type />} onClick={() => setActiveTab("fonts")} />
           <TabButton active={tab === "saved"} label="Saved" icon={<Heart />} onClick={() => setActiveTab("saved")} />
-          <TabButton active={tab === "create"} label="Create" icon={<WandSparkles />} onClick={() => setActiveTab("create")} />
+          <TabButton active={tab === "khazana"} label="Meme & Story Khazana" icon={<Drama />} onClick={() => setActiveTab("khazana")} />
         </div>
       </nav>
       {makerQuote && <StoryMaker text={makerQuote.text} translation={makerQuote.translation} id={makerQuote.id} onClose={() => setMakerQuote(null)} notify={notify} />}
@@ -324,19 +303,6 @@ function QuoteCard({ quote, favorite, delay, onCopy, onFavorite, onCreateImage, 
   </article>;
 }
 
-function Creator({ text, setText, font, setFont, background, setBackground, onDownload, onReset }: { onReset: () => void; text: string; setText: (value: string) => void; font: string; setFont: (value: string) => void; background: number; setBackground: (value: number) => void; onDownload: () => void }) {
-  return <section className="rise mx-auto max-w-2xl">
-    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">Your words, your style</p><div className="mt-1 flex items-center justify-between gap-3"><h1 className="font-display text-3xl font-medium">Quote Creator</h1><Button size="sm" variant="outline" className="rounded-full" onClick={onReset}><RotateCcw /> Reset</Button></div>
-    <div className={cn("mt-5 flex aspect-[9/12] max-h-[480px] items-center justify-center rounded-2xl p-8 text-center text-story-foreground shadow-elevated", getCreatorBackground(background)?.className)}><p className={cn("max-w-md text-[clamp(1.5rem,7vw,2.5rem)] font-semibold leading-tight", font === "Tiro Devanagari Hindi" ? "font-hindi" : font === "Manrope" ? "font-body" : "font-display")}>“{text || "Your quote will appear here."}”</p></div>
-    <div className="mt-5 space-y-5 rounded-2xl border border-glass-border bg-glass p-4 shadow-glass backdrop-blur-xl">
-      <label className="block"><span className="text-xs font-semibold text-muted-foreground">Your caption</span><textarea value={text} maxLength={180} onChange={(event) => setText(event.target.value)} rows={3} className="mt-2 w-full resize-none rounded-xl border border-input bg-background/70 p-3 text-sm outline-none ring-primary transition focus:ring-2" placeholder="Write something unforgettable…" /><span className="mt-1 block text-right text-[10px] text-muted-foreground">{text.length}/180</span></label>
-      <div><span className="text-xs font-semibold text-muted-foreground">Font</span><div className="mt-2 grid grid-cols-3 gap-2">{["Fraunces", "Manrope", "Tiro Devanagari Hindi"].map((item) => <Button key={item} variant={font === item ? "ink" : "outline"} size="sm" className={cn("min-w-0 px-2", item === "Tiro Devanagari Hindi" && "font-hindi")} onClick={() => setFont(item)}>{item === "Tiro Devanagari Hindi" ? "हिंदी" : item}</Button>)}</div></div>
-      <div><span className="text-xs font-semibold text-muted-foreground">Background</span><div className="mt-2 flex gap-3">{creatorBackgrounds.map((item, index) => <Button variant="ghost" size="icon" key={item.name} aria-label={`${item.name} background`} title={item.name} onClick={() => setBackground(index)} className={cn("size-9 rounded-full border-2 ring-offset-2 ring-offset-background transition", item.className, background === index ? "border-foreground ring-2 ring-primary" : "border-background")} />)}</div></div>
-      <Button variant="ink" size="lg" className="w-full rounded-xl" disabled={!text.trim()} onClick={onDownload}><Download /> Download Story Image</Button>
-    </div>
-  </section>;
-}
-
 function TabButton({ active, label, icon, onClick }: { active: boolean; label: string; icon: React.ReactNode; onClick: () => void }) {
-  return <Button variant="ghost" className={cn("h-14 sm:h-16 min-w-0 flex-col gap-1 rounded-2xl px-0 text-[10px] sm:text-xs", active ? "bg-foreground text-background hover:bg-foreground hover:text-background" : "text-muted-foreground")} onClick={onClick}>{icon}{label}</Button>;
+  return <Button variant="ghost" className={cn("h-14 sm:h-16 min-w-0 flex-col gap-1 rounded-2xl px-0 text-[10px] sm:text-xs", label === "Meme & Story Khazana" && "h-16 py-1", active ? "bg-foreground text-background hover:bg-foreground hover:text-background" : "text-muted-foreground")} onClick={onClick} aria-label={label}>{icon}<span className={cn("block w-full whitespace-normal text-center leading-tight", label === "Meme & Story Khazana" && "text-[9px] leading-[10px] sm:text-[10px] sm:leading-3")}>{label}</span></Button>;
 }

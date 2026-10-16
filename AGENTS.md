@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep Khazana scenario variations and seeded daily rotation in a standalone browser-safe library; this preserves existing caption datasets and keeps comedy combinations coherent.
+- Render Khazana through the existing bottom-tab system without backend writes; existing Home and quote-to-image flows remain independent.

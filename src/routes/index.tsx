@@ -304,5 +304,5 @@ function QuoteCard({ quote, favorite, delay, onCopy, onFavorite, onCreateImage, 
 }
 
 function TabButton({ active, label, icon, onClick }: { active: boolean; label: string; icon: React.ReactNode; onClick: () => void }) {
-  return <Button variant="ghost" className={cn("h-14 sm:h-16 min-w-0 flex-col gap-1 rounded-2xl px-0 text-[10px] sm:text-xs", active ? "bg-foreground text-background hover:bg-foreground hover:text-background" : "text-muted-foreground")} onClick={onClick} aria-label={label}>{icon}<span className="block w-full whitespace-normal text-center leading-tight">{label}</span></Button>;
+  return <Button variant="ghost" className={cn("h-14 sm:h-16 min-w-0 flex-col gap-1 rounded-2xl px-0 text-[10px] sm:text-xs", label === "Meme & Story Khazana" && "h-16 py-1", active ? "bg-foreground text-background hover:bg-foreground hover:text-background" : "text-muted-foreground")} onClick={onClick} aria-label={label}>{icon}<span className={cn("block w-full whitespace-normal text-center leading-tight", label === "Meme & Story Khazana" && "text-[9px] leading-[10px] sm:text-[10px] sm:leading-3")}>{label}</span></Button>;
 }

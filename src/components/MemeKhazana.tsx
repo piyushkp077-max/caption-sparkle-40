@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Check, Clapperboard, Copy, Flame, Plus, Shuffle, Timer } from "lucide-react";
+import { Check, Clapperboard, Copy, Flame, Heart, HeartCrack, Laugh, Plus, Shuffle, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { khazanaCategories, localDay, scriptText, shuffledScripts, type KhazanaCategory, type ViralScript } from "@/lib/meme-khazana";
@@ -58,7 +58,7 @@ export function MemeKhazana() {
       <Button variant="ink" size="lg" onClick={randomize} className="w-full sm:w-auto"><Shuffle /> Random Viral Story</Button>
     </div>
     <div role="tablist" aria-label="Story categories" className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
-      {khazanaCategories.map((item) => <Button key={item.id} id={`khazana-tab-${item.id}`} role="tab" aria-selected={category === item.id} aria-controls="khazana-scripts" variant={category === item.id ? "ink" : "glass"} onClick={() => selectCategory(item.id)} className={cn("h-auto min-h-11 justify-start whitespace-normal px-3 py-3 text-left", item.id === "funny" && "font-bold")}><span aria-hidden="true">{item.emoji}</span><span className="min-w-0">{item.label}</span></Button>)}
+      {khazanaCategories.map((item) => <Button key={item.id} id={`khazana-tab-${item.id}`} role="tab" aria-selected={category === item.id} aria-controls="khazana-scripts" variant={category === item.id ? "ink" : "glass"} onClick={() => selectCategory(item.id)} className={cn("h-auto min-h-11 justify-start whitespace-normal px-3 py-3 text-left", item.id === "funny" && "font-bold")}>{item.id === "funny" ? <Flame /> : item.id === "love" ? <Heart /> : item.id === "friendzone" ? <HeartCrack /> : <Laugh />}<span className="min-w-0">{item.label}</span></Button>)}
     </div>
     <div id="khazana-scripts" role="tabpanel" aria-labelledby={`khazana-tab-${category}`} className="mt-6">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -96,6 +96,6 @@ function ScriptCard({ script, featured = false, copied, onCopy }: { script: Vira
         <p className="text-sm leading-7 text-card-foreground">{part.text}</p>
       </div>)}
     </div>
-    <div className="px-4 pb-4 sm:px-5"><Button variant={copied ? "secondary" : "ink"} className="w-full sm:w-auto" onClick={onCopy}>{copied ? <Check /> : <Copy />}<span role="status" aria-live="polite">{copied ? "Copied!" : "Copy Script"}</span></Button></div>
+    <div className="px-4 pb-4 sm:px-5"><Button aria-label={copied ? "Copied!" : "Copy Script"} variant={copied ? "secondary" : "ink"} className="w-full sm:w-auto" onClick={onCopy}>{copied ? <Check /> : <Copy />}<span role="status" aria-live="polite">{copied ? "Copied!" : "Copy Script"}</span></Button></div>
   </article>;
 }

@@ -10,11 +10,11 @@ export const Route = createFileRoute("/admin")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Admin Access — Caption Craze" },
-      { name: "description", content: "Private visitor statistics for Caption Craze." },
+      { title: "Admin Access — Scriptify" },
+      { name: "description", content: "Private visitor statistics for Scriptify." },
       { name: "robots", content: "noindex, nofollow" },
-      { property: "og:title", content: "Admin Access — Caption Craze" },
-      { property: "og:description", content: "Private visitor statistics for Caption Craze." },
+      { property: "og:title", content: "Admin Access — Scriptify" },
+      { property: "og:description", content: "Private visitor statistics for Scriptify." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

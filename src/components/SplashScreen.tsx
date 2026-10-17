@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import wordmark from "@/assets/caption-craze-wordmark.png";
 import emblem from "@/assets/caption-craze-emblem.png";
 import { Button } from "@/components/ui/button";
 import { SPLASH_DURATION_MS, SPLASH_FADE_MS } from "@/lib/splash-settings";
@@ -27,10 +26,10 @@ export function SplashScreen() {
       variant="ghost"
       onClick={() => setPhase("fade")}
       className={`splash-screen ${phase === "fade" ? "splash-fade" : ""}`}
-      aria-label="Enter Caption Craze"
+      aria-label="Enter Scriptify"
     >
       <span className="splash-content">
-        <img src={wordmark} alt="Caption Craze" className="splash-wordmark" />
+        <span className="font-body text-5xl font-extrabold sm:text-6xl">Scriptify</span>
         <img src={emblem} alt="Multicolor KP emblem" className="splash-emblem" />
         <span className="splash-credit">Created by Piyush KP</span>
         <span className="splash-subtext">No Login Needed • 100% Free</span>

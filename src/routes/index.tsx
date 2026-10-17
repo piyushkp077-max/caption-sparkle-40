@@ -25,13 +25,14 @@ import { Switch } from "@/components/ui/switch";
 import { quotesByCategory } from "@/lib/quotes-data";
 import { cn } from "@/lib/utils";
 import { StoryMaker } from "@/components/StoryMaker";
-import { MemeKhazana } from "@/components/MemeKhazana";
+import { MemeKhazana, ScriptCollection } from "@/components/MemeKhazana";
 import { FontStudio } from "@/components/FontStudio";
 import { PhotoCaption } from "@/components/PhotoCaption";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { globalCategories, globalCategoryFor, type CaptionLanguage } from "@/lib/caption-settings";
 import { fitnessQuotes } from "@/lib/fitness-quotes";
 import { ScanSearch } from "lucide-react";
+import { readSavedScripts, SAVED_SCRIPTS_KEY, toggleSavedScript, type ReelScript } from "@/lib/scriptify";
 
 type Quote = {
   id: number;
@@ -86,10 +87,10 @@ const hashtagGroups: HashtagGroup[] = [
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Caption Craze" },
-      { name: "description", content: "Create two to three tailored captions from text, photos and videos in English, Hinglish, Arabic, European languages or Hindi." },
-      { property: "og:title", content: "Caption Craze" },
-      { property: "og:description", content: "Explore rich caption categories and multilingual AI captions with a dedicated Roast Mode." },
+      { title: "Scriptify" },
+      { name: "description", content: "Discover 30-second reel scripts, save favorites, and create multilingual captions with Scriptify." },
+      { property: "og:title", content: "Scriptify" },
+      { property: "og:description", content: "Original funny reel scripts, regional language flavors, and multilingual captions in Scriptify." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -105,11 +106,13 @@ function QuotelyApp() {
   const [query, setQuery] = useState("");
   const [favorites, setFavorites] = useState<number[]>([]);
   const [tab, setTab] = useState<"home" | "saved" | "khazana" | "hashtags" | "fonts" | "ai">("home");
+  const [savedScripts, setSavedScripts] = useState<ReelScript[]>([]);
   const [makerQuote, setMakerQuote] = useState<Quote | null>(null);
   const [toast, setToast] = useState("");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    setSavedScripts(readSavedScripts(window.localStorage.getItem(SAVED_SCRIPTS_KEY)));
     const savedTheme = window.localStorage.getItem("quotely-theme");
     const savedFavorites = window.localStorage.getItem("quotely-favorites");
     if (savedTheme === "dark") setTheme("dark");
@@ -164,13 +167,22 @@ function QuotelyApp() {
     });
   };
 
+  const saveScript = (script: ReelScript) => {
+    const next = toggleSavedScript(savedScripts, script);
+    try {
+      window.localStorage.setItem(SAVED_SCRIPTS_KEY, JSON.stringify(next));
+      setSavedScripts(next);
+      notify(next.length > savedScripts.length ? "Script saved" : "Script removed");
+    } catch { notify("Could not save. Please try again."); }
+  };
+
   const share = async (quote: Quote, channel: "whatsapp" | "instagram") => {
     if (channel === "whatsapp") {
       window.open(`https://wa.me/?text=${encodeURIComponent(quote.text)}`, "_blank", "noopener,noreferrer");
       return;
     }
     if (navigator.share) {
-      try { await navigator.share({ text: quote.text, title: "Caption Craze" }); } catch { return; }
+      try { await navigator.share({ text: quote.text, title: "Scriptify" }); } catch { return; }
     } else {
       await copyText(quote.text);
       notify("Caption copied — paste it in Instagram");
@@ -189,10 +201,10 @@ function QuotelyApp() {
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
             <Button variant="ghost" className="h-auto min-w-0 justify-start gap-2 p-0 text-left hover:bg-transparent" onClick={() => setActiveTab("home")} aria-label="Go home">
               <img src={kpLogo} alt="KP logo" width={720} height={697} className="size-11 sm:size-14 shrink-0 object-contain drop-shadow-lg" />
-              <span className="min-w-0 leading-none"><span className="block font-display text-lg sm:text-2xl font-medium leading-tight">Caption Craze</span><span className="mt-1 block truncate text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">CAPTIONS, QUOTES & HASHTAGS...</span></span>
+              <span className="min-w-0 leading-none"><span className="block font-display text-lg sm:text-2xl font-medium leading-tight">Scriptify</span><span className="mt-1 block truncate text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">CAPTIONS, QUOTES & REEL SCRIPTS</span></span>
             </Button>
             <div className="flex shrink-0 items-center gap-1.5">
-              <Button variant="glassIcon" size="icon" className="rounded-full" aria-label="Saved favorites" onClick={() => setActiveTab("saved")}><Heart className={cn(favorites.length > 0 && "fill-primary text-primary")} /></Button>
+              <Button variant="glassIcon" size="icon" className="rounded-full" aria-label="Saved favorites" onClick={() => setActiveTab("saved")}><Heart className={cn((favorites.length > 0 || savedScripts.length > 0) && "fill-primary text-primary")} /></Button>
               <Button variant="ink" size="icon" className="rounded-full" aria-label="Toggle color theme" onClick={() => setTheme(theme === "light" ? "dark" : "light")}>{theme === "light" ? <Moon /> : <Sun />}</Button>
             </div>
           </div>
@@ -225,7 +237,7 @@ function QuotelyApp() {
         ) : tab === "hashtags" ? (
           <Hashtags groups={visibleHashtagGroups} onCopyAll={copyAllHashtags} />
         ) : tab === "khazana" ? (
-          <MemeKhazana />
+          <MemeKhazana savedScripts={savedScripts} onSave={saveScript} />
         ) : (
           <>
 
@@ -235,22 +247,23 @@ function QuotelyApp() {
                 <div><p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">{tab === "saved" ? "Your collection" : "Fresh picks"}</p><h1 className="mt-1 flex items-center gap-2 font-display text-3xl sm:text-4xl font-medium">{tab === "saved" ? <Heart className="size-5 fill-primary text-primary" /> : <Flame className="size-5 fill-primary text-primary" />}{tab === "saved" ? "Saved Favorites" : "Trending Now"}</h1></div>
                 {tab === "home" && <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">Live <span className="size-1.5 rounded-full bg-primary" /></span>}
               </div>
+              {tab === "saved" && savedScripts.length > 0 && <div className="mt-5"><h2 className="mb-4 font-body text-xl font-bold">Saved Scripts</h2><ScriptCollection scripts={savedScripts.filter((script) => !query.trim() || `${script.title} ${script.hook} ${script.twist} ${script.punchline}`.toLowerCase().includes(query.trim().toLowerCase()))} savedScripts={savedScripts} onSave={saveScript} /></div>}
+              {tab === "saved" && visibleQuotes.length > 0 && <h2 className="mt-8 font-body text-xl font-bold">Saved Captions</h2>}
               {visibleQuotes.length ? <div className="mt-4 grid gap-6 md:grid-cols-2">
                 {visibleQuotes.map((quote, index) => <QuoteCard key={quote.id} quote={quote} favorite={favorites.includes(quote.id)} delay={Math.min(index, 3)} onCopy={() => copyText(quote.text)} onFavorite={() => toggleFavorite(quote.id)} onCreateImage={() => setMakerQuote(quote)} onShare={(channel) => share(quote, channel)} />)}
-              </div> : <div className="mt-12 text-center"><Sparkles className="mx-auto size-8 text-primary" /><h2 className="mt-3 font-display text-xl">No captions found</h2><p className="mt-1 text-sm text-muted-foreground">Try another keyword or category.</p></div>}
+              </div> : tab === "saved" && savedScripts.length > 0 ? null : <div className="mt-12 text-center"><Sparkles className="mx-auto size-8 text-primary" /><h2 className="mt-3 font-display text-xl">No captions found</h2><p className="mt-1 text-sm text-muted-foreground">Try another keyword or category.</p></div>}
             </section>
           </>
         )}
       </main>
 
       <nav className="fixed inset-x-0 bottom-0 z-[999999] border-t border-border bg-background shadow-glass" aria-label="Main navigation" style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}>
-        <div className="mx-auto grid max-w-xl grid-cols-6 gap-1 px-3 pt-2">
+        <div className="mx-auto grid max-w-xl grid-cols-5 gap-1 px-3 pt-2">
           <TabButton active={tab === "home"} label="Home" icon={<Home />} onClick={() => setActiveTab("home")} />
-          <TabButton active={tab === "hashtags"} label="Hashtags" icon={<Hash />} onClick={() => setActiveTab("hashtags")} />
+          <TabButton active={tab === "khazana"} label="Meme & Story Khazana" icon={<Drama />} onClick={() => setActiveTab("khazana")} />
           <TabButton active={tab === "ai"} label="AI Photo" icon={<ScanSearch />} onClick={() => setActiveTab("ai")} />
           <TabButton active={tab === "fonts"} label="Fonts" icon={<Type />} onClick={() => setActiveTab("fonts")} />
           <TabButton active={tab === "saved"} label="Saved" icon={<Heart />} onClick={() => setActiveTab("saved")} />
-          <TabButton active={tab === "khazana"} label="Meme & Story Khazana" icon={<Drama />} onClick={() => setActiveTab("khazana")} />
         </div>
       </nav>
       {makerQuote && <StoryMaker text={makerQuote.text} translation={makerQuote.translation} id={makerQuote.id} onClose={() => setMakerQuote(null)} notify={notify} />}

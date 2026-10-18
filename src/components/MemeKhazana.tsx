@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Check, Copy, Drama, Heart, RefreshCw, Share2, Timer, UserRound, UsersRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { nextScriptBatch, reelText, scriptCategories, scriptLanguages, type ReelScript, type ScriptCategory, type ScriptLanguage } from "@/lib/scriptify";
+import { nextScriptBatch, reelText, scriptCategories, scriptLanguages, translateScriptBatch, type ReelScript, type ScriptCategory, type ScriptLanguage } from "@/lib/scriptify";
 
 type ScriptActions = { savedScripts: ReelScript[]; onSave: (script: ReelScript) => void };
 
@@ -43,12 +43,12 @@ export function MemeKhazana({ savedScripts, onSave }: ScriptActions) {
       <Button variant="ink" size="lg" className="h-11 w-full sm:w-auto" disabled={!ready} onClick={() => { draw(category, language); setMessage("5 fresh scripts"); }}><RefreshCw /> Refresh Story</Button>
     </div>
     <div role="group" aria-label="Script language" className="mt-5 flex flex-wrap gap-2">
-      {scriptLanguages.map((item) => <Button key={item.id} variant={language === item.id ? "ink" : "outline"} aria-pressed={language === item.id} className="h-auto min-h-10 max-w-full whitespace-normal px-3 py-2 text-sm font-bold" onClick={() => { setLanguage(item.id); draw(category, item.id); }}><span aria-hidden="true">{item.emoji}</span>{item.label}</Button>)}
+      {scriptLanguages.map((item) => <Button key={item.id} variant={language === item.id ? "ink" : "outline"} aria-pressed={language === item.id} className="h-auto min-h-10 max-w-full whitespace-normal px-3 py-2 text-sm font-bold" onClick={() => { setLanguage(item.id); const translated = translateScriptBatch(current.current, item.id); current.current = translated; setScripts(translated); setMessage(""); }}><span aria-hidden="true">{item.emoji}</span>{item.label}</Button>)}
     </div>
     <div role="tablist" aria-label="Story categories" className="mt-5 grid gap-2 sm:grid-cols-2">
       {scriptCategories.map((item) => <Button key={item.id} id={`khazana-tab-${item.id}`} role="tab" aria-selected={category === item.id} aria-controls="khazana-scripts" variant={category === item.id ? "ink" : "glass"} className={cn("h-auto min-h-12 justify-start whitespace-normal px-3 py-3 text-left font-bold", item.id === "funny" && "sm:col-span-2")} onClick={() => { setCategory(item.id); draw(item.id, language); }}><span aria-hidden="true">{item.emoji}</span><span className="min-w-0">{item.label}</span></Button>)}
     </div>
-    <div className="my-5 flex items-center justify-between gap-3"><h2 className="font-body text-lg font-bold">{scriptCategories.find((item) => item.id === category)?.label}</h2><span role="status" aria-live="polite" className="shrink-0 text-xs font-semibold text-muted-foreground">{message || "5 scripts · 30 sec"}</span></div>
+    <div className="my-5 flex items-center justify-between gap-3"><h2 className="font-body text-lg font-bold">{scriptCategories.find((item) => item.id === category)?.label}</h2><span role="status" aria-live="polite" className="shrink-0 text-xs font-semibold text-muted-foreground">{message || "5 scripts · 15–20 sec"}</span></div>
     <div id="khazana-scripts" role="tabpanel" aria-labelledby={`khazana-tab-${category}`}>
       <ScriptCollection scripts={scripts} savedScripts={savedScripts} onSave={onSave} />
     </div>
@@ -85,10 +85,10 @@ export function ScriptCollection({ scripts, savedScripts, onSave }: ScriptAction
         return <article key={script.id} data-script-id={script.storyId} className={cn("rise overflow-hidden rounded-lg border bg-card shadow-glass", index === 0 ? "border-primary/50 md:col-span-2" : "border-border")} aria-label={script.title}>
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-primary/5 px-4 py-4 sm:px-5">
             <h3 className="min-w-0 font-body text-xl font-extrabold leading-snug">{script.title}</h3>
-            <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-muted-foreground"><span className="flex items-center gap-1"><Timer className="size-3.5" /> 30 sec</span><span className="flex items-center gap-1">{script.people === 1 ? <UserRound className="size-3.5" /> : <UsersRound className="size-3.5" />}{script.people === 1 ? "Solo POV" : `${script.people} people`}</span><span>{scriptLanguages.find((item) => item.id === script.language)?.label}</span></div>
+            <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-muted-foreground"><span className="flex items-center gap-1"><Timer className="size-3.5" /> 15–20 sec</span><span className="flex items-center gap-1">{script.people === 1 ? <UserRound className="size-3.5" /> : <UsersRound className="size-3.5" />}{script.people === 1 ? "Solo POV" : `${script.people} people`}</span><span>{scriptLanguages.find((item) => item.id === script.language)?.label}</span></div>
           </div>
           <div dir={script.language === "arabic" ? "rtl" : undefined} lang={script.language === "arabic" ? "ar" : script.language === "hinglish" ? "en" : "hi"} className={cn("grid gap-5 p-4 sm:p-5", index === 0 && "lg:grid-cols-3")}>
-            {[{ label: "Hook", time: "0–10s", text: script.hook }, { label: "Twist", time: "10–20s", text: script.twist }, { label: "Punchline", time: "20–30s", text: script.punchline }].map((part, partIndex) => <div key={part.label} className="min-w-0"><div dir="ltr" className="mb-2 flex items-center gap-2 text-xs font-bold uppercase text-primary"><span className="text-muted-foreground">0{partIndex + 1}</span>{part.label}<span className="ml-auto font-semibold text-muted-foreground">{part.time}</span></div><p className="font-body text-lg font-semibold leading-relaxed">{part.text}</p></div>)}
+            {[{ label: "Hook", time: "0–5s", text: script.hook }, { label: "Rant", time: "5–10s", text: script.twist }, { label: "Punchline", time: "10–15s", text: script.punchline }].map((part, partIndex) => <div key={part.label} className="min-w-0"><div dir="ltr" className="mb-2 flex items-center gap-2 text-xs font-bold uppercase text-primary"><span className="text-muted-foreground">0{partIndex + 1}</span>{part.label}<span className="ml-auto font-semibold text-muted-foreground">{part.time}</span></div><p className="font-body text-lg font-semibold leading-relaxed">{part.text}</p></div>)}
           </div>
           <div className="flex items-center gap-2 px-4 pb-4 sm:px-5">
             <Button aria-label={copied === script.id ? "Copied!" : "Copy Script"} variant={copied === script.id ? "secondary" : "ink"} className="h-11 min-w-0 flex-1 sm:flex-none" onClick={() => copy(script)}>{copied === script.id ? <Check /> : <Copy />}<span role="status" aria-live="polite">{copied === script.id ? "Copied!" : "Copy Script"}</span></Button>

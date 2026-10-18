@@ -19,6 +19,8 @@ export type ScriptLanguage = typeof scriptLanguages[number]["id"];
 export type ReelScript = { id: string; storyId: string; category: ScriptCategory; language: ScriptLanguage; title: string; cast: "solo" | "group"; people: number; hook: string; twist: string; punchline: string };
 export const SCRIPT_BATCH_SIZE = 5;
 export const SAVED_SCRIPTS_KEY = "scriptify-saved-scripts";
+export const SCRIPT_MAX_WORDS = 40;
+export const SCRIPT_MAX_LINE_WORDS = 14;
 
 // Original monologues, not quotations or impersonations of a named creator.
 const extras: Record<ScriptLanguage, string[][]> = {
@@ -36,19 +38,19 @@ function regional(text: string, language: ScriptLanguage): string {
 }
 
 export function scriptsFor(category: ScriptCategory, language: ScriptLanguage): ReelScript[] {
-  return scriptifyScenes.filter((scene) => scene.category === category).flatMap((scene, sceneIndex) =>
-    Array.from({ length: 8 }, (_, variation) => {
+  return scriptifyScenes.filter((scene) => scene.category === category).map((scene, sceneIndex) => {
       const source = language === "arabic" ? scene.arabic : language === "hinglish" ? scene.hinglish : scene.hindi;
-      const parts = source.map((text, part) => {
-        const alternate = (variation >> part) & 1;
-        // Distinct camera beats on the same coherent setup; keep spoken content short.
-        const extra = extras[language][part]?.[alternate] ?? "";
-        return `${regional(text, language)} ${extra}`;
-      });
-      const storyId = `${category}-${sceneIndex}-${variation}`;
-      return { id: `${storyId}-${language}`, storyId, category, language, title: scene.title, cast: scene.cast, people: scene.cast === "solo" ? 1 : sceneIndex === 4 && category === "friendzone" ? 3 : 2, hook: parts[0] ?? "", twist: parts[1] ?? "", punchline: parts[2] ?? "" };
-    }),
-  );
+      const parts = source.map((text) => regional(text, language));
+      const storyId = `short-v2-${category}-${sceneIndex}`;
+      return { id: `${storyId}-${language}`, storyId, category, language, title: scene.title, cast: scene.cast, people: scene.cast === "solo" ? 1 : category === "friendzone" && sceneIndex < 28 ? 3 : 2, hook: parts[0] ?? "", twist: parts[1] ?? "", punchline: parts[2] ?? "" };
+  });
+}
+
+// Materialize the full 160-scene bank once; language changes only select translations.
+export const scriptBank: ReelScript[] = scriptLanguages.flatMap((language) => scriptCategories.flatMap((category) => scriptsFor(category.id, language.id)));
+
+export function translateScriptBatch(scripts: ReelScript[], language: ScriptLanguage): ReelScript[] {
+  return scripts.map((script) => scriptBank.find((item) => item.storyId === script.storyId && item.language === language) ?? script);
 }
 
 function shuffle<T>(items: T[], random: () => number): T[] {
@@ -62,14 +64,15 @@ function shuffle<T>(items: T[], random: () => number): T[] {
 }
 
 export function nextScriptBatch(category: ScriptCategory, language: ScriptLanguage, seen: string[], previous: string[] = [], random = Math.random): { scripts: ReelScript[]; seen: string[] } {
-  const pool = scriptsFor(category, language);
+  const pool = scriptBank.filter((script) => script.category === category && script.language === language);
   let history = new Set(seen);
-  let available = pool.filter((script) => !history.has(script.storyId));
+  let available = pool.filter((script) => !history.has(script.storyId) && !previous.includes(script.storyId));
   // Every batch contains four solo scripts and one easy group script. Reset only after exhaustion.
   if (available.filter((s) => s.cast === "solo").length < 4 || !available.some((s) => s.cast === "group")) {
     history = new Set();
     available = pool.filter((script) => !previous.includes(script.storyId));
   }
+  // Fisher–Yates gives a true unbiased shuffle, unlike a random sort comparator.
   const solo = shuffle(available.filter((s) => s.cast === "solo"), random);
   const selected: ReelScript[] = [];
   // Prefer distinct topics without discarding unseen variations.
@@ -83,7 +86,7 @@ export function nextScriptBatch(category: ScriptCategory, language: ScriptLangua
 
 export function reelText(script: ReelScript): string {
   const language = scriptLanguages.find((item) => item.id === script.language)?.label;
-  return `${script.title}\n${language} · ${script.people === 1 ? "Solo POV" : `${script.people} people`}\n\nHook (0–10s)\n${script.hook}\n\nTwist (10–20s)\n${script.twist}\n\nPunchline (20–30s)\n${script.punchline}`;
+  return `${script.title}\n${language} · ${script.people === 1 ? "Solo POV" : `${script.people} people`} · 15–20 sec\n\nHook: ${script.hook}\nRant: ${script.twist}\nPunchline: ${script.punchline}`;
 }
 
 export function readSavedScripts(value: string | null): ReelScript[] {

@@ -22,18 +22,9 @@ export const SAVED_SCRIPTS_KEY = "scriptify-saved-scripts";
 export const SCRIPT_MAX_WORDS = 40;
 export const SCRIPT_MAX_LINE_WORDS = 14;
 
-// Original monologues, not quotations or impersonations of a named creator.
-const extras: Record<ScriptLanguage, string[][]> = {
-  hinglish: [["Camera on. Confidence full, budget zero.", "Bhai, story sun, ending pe mat rona."], ["Yahin pe meri smile buffering kar gayi.", "Plot twist ne seedha reality check bheja."], ["Is scene ka screenshot mat lena, self-respect pending hai.", "Follow-up kal: aaj ka emotional budget khatam."]],
-  hindi: [["कैमरा चालू, विश्वास पूरा, बजट शून्य।", "कहानी सुनो, आखिर में हँसना मत भूलना।"], ["यहीं मेरी मुस्कान अटक गई।", "कहानी ने सीधे हकीकत दिखा दी।"], ["इस दृश्य की फोटो मत लेना, आत्मसम्मान अभी बाकी है।", "बाकी कल, आज की भावनाओं का बजट खत्म।"]],
-  bihari: [["का हो भइया, देखियो लेब, आज गजबे किस्सा बा।", "सुनऽ भइया, भरोसा पूरा, जेब एकदम खाली बा।"], ["एही जगह हमार मुस्कान अटक गइल।", "अरे बाप रे, ई त पूरा खेल पलट गइल।"], ["अब हँसऽ मत भइया, हमार इज्जत अभी बाकी बा।", "बाकी बतिया काल्ह, आज दिल के बजट खत्म बा।"]],
-  desi: [["सुन भाई, आज का किस्सा पूरा बावला सै।", "राम राम भाई, अकड़ पूरी, जेब खाली सै।"], ["इब देख, यहीं सारी हेकड़ी निकल गई।", "यो मोड़ देख के दिमाग की छुट्टी हो गई।"], ["इब हँस ले भाई, मेरी अकड़ का रिचार्ज खत्म सै।", "बाकी कल, आज किस्मत ने पूरा रोस्ट कर दिया।"]],
-  arabic: [["الكاميرا تعمل، الثقة كاملة والميزانية صفر.", "اسمع القصة، ولا تنس الضحك في النهاية."], ["هنا توقفت ابتسامتي عن العمل تماماً.", "تغيرت القصة وأرسلت لي اختبار واقع مباشر."], ["لا تصوروا هذه اللحظة، كرامتي ما زالت قيد الإصلاح.", "نكمل غداً، ميزانية المشاعر لهذا اليوم انتهت."]],
-};
-
 function regional(text: string, language: ScriptLanguage): string {
-  if (language === "bihari") return text.replace(/\bNEVER_MATCH\b/g, "").replace(/मैंने/g, "हमने").replace(/मुझे/g, "हमके").replace(/मेरा/g, "हमार").replace(/मेरी/g, "हमार").replace(/मैं /g, "हम ").replace(/तुम्हारा/g, "तोहार").replace(/तुम्हारी/g, "तोहार").replace(/ है/g, " बा").replace(/ हूँ/g, " बानी").replace(/बोली/g, "बोलीं");
-  if (language === "desi") return text.replace(/मुझे/g, "मन्ने").replace(/मैंने/g, "मन्ने").replace(/तुम्हारा/g, "तेरा").replace(/तुम्हारी/g, "तेरी").replace(/ है/g, " सै").replace(/ हैं/g, " सैं").replace(/यह /g, "यो ").replace(/अब /g, "इब ").replace(/बहुत/g, "घणा").replace(/क्यों/g, "क्यूँ");
+  if (language === "bihari") return "भइया, " + text.replace(/मैंने/g, "हमने").replace(/मुझे/g, "हमके").replace(/मेरा/g, "हमार").replace(/मेरी/g, "हमार").replace(/मैं /g, "हम ").replace(/तुम्हारा/g, "तोहार").replace(/तुम्हारी/g, "तोहार").replace(/ है/g, " बा").replace(/ हूँ/g, " बानी").replace(/बोली/g, "बोलीं");
+  if (language === "desi") return "भाई, " + text.replace(/मुझे/g, "मन्ने").replace(/मैंने/g, "मन्ने").replace(/तुम्हारा/g, "तेरा").replace(/तुम्हारी/g, "तेरी").replace(/ है/g, " सै").replace(/ हैं/g, " सैं").replace(/यह /g, "यो ").replace(/अब /g, "इब ").replace(/बहुत/g, "घणा").replace(/क्यों/g, "क्यूँ");
   return text;
 }
 

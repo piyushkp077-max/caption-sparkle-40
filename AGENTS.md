@@ -14,3 +14,4 @@
 
 - Keep Scriptify's materialized short-scene bank, regional translations and Fisher–Yates batch selection in browser-safe libraries; language switches translate current story IDs without consuming refresh history and caption datasets stay independent.
 - Save scripts as validated text snapshots in a separate localStorage key and batch history in sessionStorage; no auth or backend writes are needed and saved captions remain intact.
+- Render and export script prose through the shared reelText formatter while retaining stored scene fields for saved-script compatibility.

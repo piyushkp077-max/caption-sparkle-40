@@ -5,7 +5,7 @@ describe("Scriptify rules", () => {
   it("has more than 150 distinct scripts per language", () => {
     for (const language of scriptLanguages) {
       const all = scriptCategories.flatMap((category) => scriptsFor(category.id, language.id));
-      expect(all.length).toBeGreaterThanOrEqual(150);
+      expect(all.length).toBeGreaterThanOrEqual(160);
       expect(new Set(all.map((s) => `${s.hook}|${s.twist}|${s.punchline}`)).size).toBe(all.length);
     }
   });
@@ -77,5 +77,11 @@ describe("Scriptify rules", () => {
     expect(toggleSavedScript(saved, script)).toEqual([]);
     expect(readSavedScripts('[{"id":"broken"}]')).toEqual([]);
     expect(readSavedScripts("broken")).toEqual([]);
+  });
+  it("exports the complete spoken script as one continuous paragraph", () => {
+    for (const script of scriptBank) {
+      expect(reelText(script)).toBe([script.hook, script.twist, script.punchline].join(" "));
+      expect(reelText(script)).not.toMatch(/[\r\n]/);
+    }
   });
 });

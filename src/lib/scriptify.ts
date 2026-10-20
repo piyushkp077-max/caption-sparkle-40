@@ -76,8 +76,7 @@ export function nextScriptBatch(category: ScriptCategory, language: ScriptLangua
 }
 
 export function reelText(script: ReelScript): string {
-  const language = scriptLanguages.find((item) => item.id === script.language)?.label;
-  return `${script.title}\n${language} · ${script.people === 1 ? "Solo POV" : `${script.people} people`} · 15–20 sec\n\nHook: ${script.hook}\nRant: ${script.twist}\nPunchline: ${script.punchline}`;
+  return [script.hook, script.twist, script.punchline].join(" ").replace(/\s+/g, " ").trim();
 }
 
 export function readSavedScripts(value: string | null): ReelScript[] {

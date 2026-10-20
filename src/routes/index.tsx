@@ -88,7 +88,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Scriptify" },
-      { name: "description", content: "Discover 30-second reel scripts, save favorites, and create multilingual captions with Scriptify." },
+      { name: "description", content: "Discover punchy 15–20-second reel scripts, save favorites, and create multilingual captions with Scriptify." },
       { property: "og:title", content: "Scriptify" },
       { property: "og:description", content: "Original funny reel scripts, regional language flavors, and multilingual captions in Scriptify." },
       { property: "og:type", content: "website" },

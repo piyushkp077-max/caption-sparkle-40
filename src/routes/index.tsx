@@ -105,7 +105,7 @@ function QuotelyApp() {
   const [language, setLanguage] = useState<CaptionLanguage>("शुद्ध हिंदी");
   const [query, setQuery] = useState("");
   const [favorites, setFavorites] = useState<number[]>([]);
-  const [tab, setTab] = useState<"home" | "saved" | "khazana" | "hashtags" | "fonts" | "ai">("home");
+  const [tab, setTab] = useState<"home" | "saved" | "khazana" | "hashtags" | "fonts" | "ai">("khazana");
   const [savedScripts, setSavedScripts] = useState<ReelScript[]>([]);
   const [makerQuote, setMakerQuote] = useState<Quote | null>(null);
   const [toast, setToast] = useState("");
